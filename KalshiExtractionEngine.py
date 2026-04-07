@@ -210,7 +210,7 @@ class KalshiExtractionEngine:
         # manages the while loop, and aggregates the returned list.
         return self._paginate_extraction("/markets", "markets", params=params)
 
-    def extract_with_checkpointing(self, data_file="kalshi_markets.jsonl", checkpoint_file="cursor_state.json"):
+    def extract_markets_with_checkpointing(self, data_file="kalshi_markets.jsonl", checkpoint_file="cursor_state.json"):
         """
         Extracts historical markets robustly using checkpoints.
         Saves data continuously to a JSONL file to prevent data loss during network drops.
@@ -277,6 +277,54 @@ class KalshiExtractionEngine:
                 
                 # Sleep to respect rate limits
                 time.sleep(0.2)
+
+    def fetch_and_group_series_by_category(self, taxonomy_path="taxonomy.json"):
+        """
+        Downloads all Series and groups them by categories as defined in taxonomy.json.
+        Returns a dictionary: {category: [series, ...]}
+        """
+        with open(taxonomy_path, "r", encoding="utf-8") as f:
+            taxonomy = json.load(f)
+        result = {}
+        for category in taxonomy.keys():
+            # Use filter by category
+            series_list = self.fetch_series_collection(category_filter=category)
+            result[category] = series_list
+        return result
+
+    def fetch_and_group_markets_by_category(self, taxonomy_path="taxonomy.json", target_status="settled"):
+        """
+        Downloads markets and groups them by categories as defined in taxonomy.json.
+        Avoids the N+1 API call problem by querying markets directly per category 
+        instead of iterating through individual series tickers.
+
+        Parameters:
+            - taxonomy_path: Path to the taxonomy JSON file that maps categories to tags.
+            - target_status: The market status to filter by (e.g., "open", "settled", "closed").
+        """
+        import json
+        
+        with open(taxonomy_path, "r", encoding="utf-8") as f:
+            taxonomy = json.load(f)
+            
+        result = {}
+        
+        for category in taxonomy.keys():
+            print(f"Fetching {target_status} markets directly for category: {category}...")
+            
+            # Using the direct category filter on the /markets endpoint
+            params = {
+                "category": category,
+                "status": target_status 
+            }
+            
+            # Utilizing the internal pagination mechanism to extract all relevant markets safely
+            markets_list = self._paginate_extraction("/markets", "markets", params=params)
+            
+            result[category] = markets_list
+            print(f"Successfully retrieved {len(markets_list)} markets for {category}.")
+            return result
+        return result
 
     # =========================================================================
     # Cluster 3: Continuous time analysis and candlestick data in a dual environment
