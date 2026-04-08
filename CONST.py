@@ -1,0 +1,6 @@
+DATA_DIR = "DATA/"
+
+TAXONOMY_DIR = DATA_DIR + "Taxonomy/"
+SERIES_DIR = DATA_DIR + "Series/"
+MARKETS_DIR = DATA_DIR + "Markets/"
+

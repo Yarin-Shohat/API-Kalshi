@@ -1,0 +1,10 @@
+.env
+__pycache__/
+.vscode/
+
+private_key.pem
+kalshi_markets.jsonl
+markets_by_series.json
+markets_by_category.json
+
+DATA/
