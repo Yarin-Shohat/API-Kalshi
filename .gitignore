@@ -1,6 +1,0 @@
-.env
-__pycache__/
-.vscode/
-
-private_key.pem
-kalshi_markets.jsonl
