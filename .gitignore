@@ -7,4 +7,5 @@ kalshi_markets.jsonl
 markets_by_series.json
 markets_by_category.json
 
-DATA/
+markets_by_series.json.gz
+markets_by_category.json.gz
