@@ -380,6 +380,26 @@ class KalshiExtractionEngine:
         hist_response = self._execute_request("GET", historical_endpoint, params=params)
         return hist_response.get('candlesticks', []) if hist_response else []
 
+    def fetch_market_trades(self, ticker):
+            """ 
+            Extracts the complete, tick-by-tick trading history for a specific market.
+            Provides precise volume, price, and timestamp for every transaction.
+            """
+            endpoint = f"/markets/{ticker}/trades"
+            return self._paginate_extraction(endpoint, "trades")
+    
+    def fetch_event_forecast_history(self, event_ticker):
+        """
+        Retrieves the historical probability forecasts for a specific event.
+        Note: This uses the 'event_ticker' (e.g., 'KXPRESIDENT24'), 
+        not the individual market 'ticker'.
+        """
+        print(f"Fetching forecast history for event: {event_ticker}...")
+        endpoint = f"/events/{event_ticker}/forecast_history"
+        
+        # This endpoint typically returns a single JSON object with arrays of historical data,
+        # so we use the standard _execute_request rather than the pagination method.
+        return self._execute_request("GET", endpoint)
     # =========================================================================
     # Cluster 4: Institutional portfolio data and trading accounting (Private Data)
     # =========================================================================
