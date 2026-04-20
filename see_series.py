@@ -17,30 +17,37 @@ series_by_category_PATH = SERIES_DIR + "fixed_series_by_category.json"
 
 engine = KalshiExtractionEngine(api_key_id=API_KEY, private_key_path=API_PATH, use_demo=False)
 
-print("Reading data files...")
-# Read files and load data into memory
-# print("Loading markets...")
-# df_markets = pd.read_parquet(markets_PATH)
-# print("Finished loading markets.")
-print("Loading series by category...")
-with open(series_by_category_PATH, 'r') as f:
-    series_by_category = json.load(f)
-print("Finished loading series by category.")
+# print("Reading data files...")
+# # Read files and load data into memory
+# # print("Loading markets...")
+# # df_markets = pd.read_parquet(markets_PATH)
+# # print("Finished loading markets.")
+# print("Loading series by category...")
+# with open(series_by_category_PATH, 'r') as f:
+#     series_by_category = json.load(f)
+# print("Finished loading series by category.")
 
-series_without_prohibition = []
+# series_without_prohibition = []
 
-for category, series_list in series_by_category.items():
-    for series in series_list:
-        additional_prohibitions = series.get('additional_prohibitions', [])
-        if not additional_prohibitions or len(additional_prohibitions) == 0:
-            series_without_prohibition.append(series["title"])
+# for category, series_list in series_by_category.items():
+#     for series in series_list:
+#         additional_prohibitions = series.get('additional_prohibitions', [])
+#         if not additional_prohibitions or len(additional_prohibitions) == 0:
+#             series_without_prohibition.append(series["title"])
 
-print(f"Total series without additional prohibitions: {len(series_without_prohibition)}")
-print("Sample of series without additional prohibitions:")
-for title in series_without_prohibition:
-    print(title)
+# print(f"Total series without additional prohibitions: {len(series_without_prohibition)}")
+# print("Sample of series without additional prohibitions:")
+# for title in series_without_prohibition:
+#     print(title)
 
-# Save series_without_prohibition to a text file
-with open("series_without_prohibition.txt", "w") as f:
-    for title in series_without_prohibition:
-        f.write(title + "\n")
+# # Save series_without_prohibition to a text file
+# with open("series_without_prohibition.txt", "w") as f:
+#     for title in series_without_prohibition:
+#         f.write(title + "\n")
+
+# fetch_series_collection
+# Get series info
+series_info = engine.fetch_series_collection()
+# Save series info to a JSON file
+with open("series_info.json", "w") as f:
+    json.dump(series_info, f, indent=4)

@@ -53,4 +53,16 @@ historical_price_action = engine.fetch_candlesticks_with_routing(
 
 print(f"Retrieved {len(historical_price_action)} hourly candles for {ticket}!")
 # Print the first candle to see the structure
-print(historical_price_action[0])
+# print(historical_price_action[0])
+
+# # fetch_market_trades
+# trades = engine.fetch_market_trades(
+#     ticker=ticket
+# )
+# print(f"Retrieved {len(trades)} trades for {ticket}!")
+
+# fetch_event_forecast_history
+# event_forecast_history = engine.fetch_event_forecast_history(
+#     event_ticker=ticket
+# )
+# print(f"Retrieved {len(event_forecast_history)} forecast history entries for {ticket}!")

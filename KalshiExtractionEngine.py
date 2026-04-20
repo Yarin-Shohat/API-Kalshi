@@ -54,6 +54,50 @@ class KalshiExtractionEngine:
         )
         return base64.b64encode(signature).decode('utf-8')
 
+    def _execute_requestV2(self, method, endpoint, params=None, max_retries=5):
+        """
+        Executes HTTP requests with Exponential Backoff for rate limits (429) 
+        and network connection drops. 
+        Fails fast on 404 (Not Found) to allow routing logic to work efficiently.
+        """
+        url = f"{self.base_url}{endpoint}"
+        headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+
+        for attempt in range(max_retries):
+            try:
+                response = requests.request(method, url, headers=headers, params=params, timeout=15)
+                
+                if response.status_code == 429:
+                    wait_time = 2 ** attempt
+                    print(f"[Rate Limit 429] Throttled. Sleeping for {wait_time}s...")
+                    time.sleep(wait_time)
+                    continue 
+                
+                response.raise_for_status()
+                return response.json()
+
+            except requests.exceptions.HTTPError as error:
+                # CHANGED: Fail fast for 400, 403, and 404 errors. 
+                # These are permanent client errors, so retrying is a waste of time.
+                if response.status_code in [400, 403, 404]:
+                    return None
+                    
+                # If it's a 500 error (Server crash), retry
+                wait_time = 2 ** attempt
+                print(f"[HTTP Error] {error}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+                continue
+                
+            except requests.exceptions.RequestException as error:
+                # Catch complete network drops or timeouts
+                wait_time = 2 ** attempt
+                print(f"[Network Error] {error}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+                continue
+                
+        print(f"[Extraction Failed] Maximum retries exceeded for {endpoint}.")
+        return None
+    
     def _execute_request(self, method, endpoint, params=None, requires_auth=False, max_retries=5):
         """
         Manages the communication layer with the API, adding security headers.
